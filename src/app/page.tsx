@@ -30,7 +30,7 @@ export default async function Home() {
     } catch (error) {
         return (
             <main className="container mx-auto p-4">
-                <p>Перевірте, чи існує Story зі slug "bank-list" у Storyblok.</p>
+                <p>Перевірте, чи існує Story зі slug у Storyblok.</p>
             </main>
         );
     }
