@@ -1,4 +1,5 @@
 import { getStoryblokApi } from '@storyblok/react/rsc';
+import Image from 'next/image';
 
 export default async function Home() {
     const storyblokApi = getStoryblokApi();
@@ -13,7 +14,7 @@ export default async function Home() {
             <main className="container mx-auto p-4">
                 <h1 className="text-3xl font-bold">{content.name}</h1>
                 <p className="text-lg">ID: {content.id}</p>
-                <img src={content.logo.filename} alt={content.name} className="w-32 h-32 my-4" />
+                <Image src={content.logo.filename} alt={content.name} className="w-32 h-32 my-4" />
                 <h2 className="text-xl font-semibold">Курси валют:</h2>
                 <table className="table-auto mt-4">
                     <thead>
