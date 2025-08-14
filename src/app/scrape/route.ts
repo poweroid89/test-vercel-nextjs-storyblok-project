@@ -14,9 +14,7 @@ export async function GET(request: Request) {
             args: chromium.args,
             executablePath: await chromium.executablePath(),
             headless: true,
-            // @ts-ignore
-            ignoreHTTPSErrors: true,
-        });
+        }) as unknown as puppeteer.Browser;
 
         const page = await browser.newPage();
         await page.goto('https://bri.co.id/'); // Замініть на реальний сайт
