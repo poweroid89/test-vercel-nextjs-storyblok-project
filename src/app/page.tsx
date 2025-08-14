@@ -25,13 +25,6 @@ export default async function Home() {
                     </tr>
                     </thead>
                     <tbody>
-                    {Object.entries(content.rates).map(([currency, rates]: [string, any]) => (
-                        <tr key={currency}>
-                            <td className="border px-4 py-2">{currency}</td>
-                            <td className="border px-4 py-2">{rates.buy}</td>
-                            <td className="border px-4 py-2">{rates.sell}</td>
-                        </tr>
-                    ))}
                     </tbody>
                 </table>
             </main>
@@ -39,7 +32,6 @@ export default async function Home() {
     } catch (error) {
         return (
             <main className="container mx-auto p-4">
-                <h1 className="text-3xl font-bold text-red-600">Помилка: Банк не знайдено</h1>
                 <p>Перевірте, чи існує Story зі slug "bank-list" у Storyblok.</p>
             </main>
         );
