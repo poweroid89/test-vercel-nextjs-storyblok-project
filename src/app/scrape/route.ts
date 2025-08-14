@@ -13,11 +13,13 @@ export async function GET(request: Request) {
         const browser = await puppeteer.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath(),
-            headless: true
+            headless: true,
+            // @ts-ignore
+            ignoreHTTPSErrors: true,
         });
 
         const page = await browser.newPage();
-        await page.goto('https://bri.co.id/',  { waitUntil: 'domcontentloaded', ignoreHTTPSErrors: true }); // Замініть на реальний сайт
+        await page.goto('https://bri.co.id/'); // Замініть на реальний сайт
         const exchangeRates = await page.evaluate(() => {
             const usdBuy = document.querySelector('.logo-home')?.innerText || '0';
             const usdSell = document.querySelector('.logo-default')?.innerText || '0';
