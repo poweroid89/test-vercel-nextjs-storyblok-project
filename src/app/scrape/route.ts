@@ -16,10 +16,14 @@ export async function GET(request: Request) {
         const browser = await puppeteer.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath(),
-            headless: true,
+            headless: false,
         });
 
         const page = await browser.newPage();
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
+        await page.setExtraHTTPHeaders({
+            'Accept-Language': 'en-US,en;q=0.9'
+        });
 
         // Навігація на сайт
         await page.goto('https://bri.co.id/kurs-detail', { waitUntil: 'domcontentloaded' });
