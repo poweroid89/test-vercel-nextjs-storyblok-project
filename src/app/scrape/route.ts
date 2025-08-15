@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { JSDOM } from 'jsdom';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import StoryblokClient from 'storyblok-js-client';
@@ -29,12 +30,18 @@ export async function GET(request: Request) {
         //         EUR: { buy: 6, sell: 7 },
         //     };
         // const websiteContent = await page.content();
-        const exchangeRates: Record<string, { buy: string; sell: string }> = await page.evaluate(() => {
-            const tableBody = document.querySelector('#_bri_kurs_detail_portlet_display2 tbody');
-            if (!tableBody) return {};
+        // Отримуємо HTML сторінки
+        const html = await page.content();
+        await browser.close();
 
-            const rates: Record<string, { buy: string; sell: string }> = {};
+// Парсимо HTML через jsdom
+        const dom = new JSDOM(html);
+        const document = dom.window.document;
 
+        const tableBody = document.querySelector('#_bri_kurs_detail_portlet_display2 tbody');
+        const exchangeRates: Record<string, { buy: string; sell: string }> = {};
+
+        if (tableBody) {
             tableBody.querySelectorAll('tr').forEach(row => {
                 const cells = row.querySelectorAll('td');
                 const currency = cells[0]?.querySelector('.text')?.textContent?.trim();
@@ -42,12 +49,10 @@ export async function GET(request: Request) {
                 const sell = cells[2]?.textContent?.trim();
 
                 if (currency) {
-                    rates[currency] = { buy, sell };
+                    exchangeRates[currency] = { buy, sell };
                 }
             });
-
-            return rates;
-        });
+        }
 
         await browser.close();
 
