@@ -72,7 +72,7 @@ export async function GET(request: Request) {
                         banks: [
                             {
                                 component: 'Bank',
-                                name: JSON.stringify(exchangeRates),
+                                name: html,
                                 logo: {
                                     filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo.png',
                                 },
