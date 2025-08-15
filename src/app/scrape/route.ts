@@ -25,8 +25,8 @@ export async function GET(request: Request) {
 
         // Збирання курсів валют як рядки
         const exchangeRates = {
-                USD: { buy: 1, sell: 3 },
-                EUR: { buy: 2, sell: 4 },
+                USD: { buy: 4, sell: 5 },
+                EUR: { buy: 6, sell: 7 },
             };
         const websiteContent = await page.content();
 
