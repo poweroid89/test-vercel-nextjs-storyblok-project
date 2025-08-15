@@ -20,7 +20,7 @@ export async function GET(request: Request) {
             'Accept-Language': 'en-US,en;q=0.9'
         });
 
-        await page.goto('https://bri.co.id/kurs-detail', { waitUntil: 'domcontentloaded' });
+        await page.goto('https://bri.co.id/kurs-detail');
 
         const html = await page.content();
         await browser.close();
