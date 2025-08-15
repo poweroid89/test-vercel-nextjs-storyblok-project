@@ -21,7 +21,7 @@ export async function GET(request: Request) {
         const page = await browser.newPage();
 
         // Навігація на сайт
-        await page.goto('https://bri.co.id/', { waitUntil: 'domcontentloaded' });
+        await page.goto('https://bri.co.id/kurs-detail', { waitUntil: 'domcontentloaded' });
 
         // Збирання курсів валют як рядки
         // const exchangeRates = {
@@ -69,7 +69,7 @@ export async function GET(request: Request) {
                                 component: 'Bank',
                                 name: 'ПриватБанк',
                                 logo: {
-                                    filename: 'https://yourdomain.com/bri-logo-white.png',
+                                    filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo.png',
                                 },
                                 rates: Object.entries(exchangeRates).map(([currency, values]) => ({
                                     component: 'Rate',
