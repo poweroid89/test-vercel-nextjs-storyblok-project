@@ -21,14 +21,33 @@ export async function GET(request: Request) {
         const page = await browser.newPage();
 
         // Навігація на сайт
-        await page.goto('https://api.ipify.org/', { waitUntil: 'domcontentloaded' });
+        await page.goto('https://bri.co.id/', { waitUntil: 'domcontentloaded' });
 
         // Збирання курсів валют як рядки
-        const exchangeRates = {
-                USD: { buy: 4, sell: 5 },
-                EUR: { buy: 6, sell: 7 },
-            };
-        const websiteContent = await page.content();
+        // const exchangeRates = {
+        //         USD: { buy: 4, sell: 5 },
+        //         EUR: { buy: 6, sell: 7 },
+        //     };
+        // const websiteContent = await page.content();
+        const exchangeRates: Record<string, { buy: string; sell: string }> = await page.evaluate(() => {
+            const tableBody = document.querySelector('#_bri_kurs_detail_portlet_display2 tbody');
+            if (!tableBody) return {};
+
+            const rates: Record<string, { buy: string; sell: string }> = {};
+
+            tableBody.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const currency = cells[0]?.querySelector('.text')?.textContent?.trim();
+                const buy = cells[1]?.textContent?.trim();
+                const sell = cells[2]?.textContent?.trim();
+
+                if (currency) {
+                    rates[currency] = { buy, sell };
+                }
+            });
+
+            return rates;
+        });
 
         await browser.close();
 
@@ -58,20 +77,7 @@ export async function GET(request: Request) {
                                     buy: String(values.buy),
                                     sell: String(values.sell),
                                 })),
-                            },
-                            {
-                                component: 'Bank',
-                                name: 'Монобанк',
-                                logo: {
-                                    filename: 'https://yourdomain.com/mono-logo.png',
-                                },
-                                rates: Object.entries(exchangeRates).map(([currency, values]) => ({
-                                    component: 'Rate',
-                                    name: currency,
-                                    buy: String(values.buy),
-                                    sell: String(values.sell),
-                                })),
-                            },
+                            }
                             // можна додати ще банків аналогічно
                         ],
                     },
