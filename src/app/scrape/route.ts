@@ -57,7 +57,7 @@ export async function GET(request: Request) {
                             filename:
                                 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
                         },
-                        Rates: exchangeRates,
+                        rates: exchangeRates,
                     },
                 },
                 publish: 1,
