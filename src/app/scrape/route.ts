@@ -48,24 +48,38 @@ export async function GET(request: Request) {
                         banks: [
                             {
                                 component: 'Bank',
-                                name: websiteContent,
+                                name: 'ПриватБанк',
                                 logo: {
-                                    filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
+                                    filename: 'https://yourdomain.com/bri-logo-white.png',
                                 },
                                 rates: Object.entries(exchangeRates).map(([currency, values]) => ({
                                     component: 'Rate',
-                                    name: currency,        // поле "name" у Rate
+                                    name: currency,
                                     buy: String(values.buy),
                                     sell: String(values.sell),
                                 })),
                             },
-                            // можна додавати ще банків сюди
+                            {
+                                component: 'Bank',
+                                name: 'Монобанк',
+                                logo: {
+                                    filename: 'https://yourdomain.com/mono-logo.png',
+                                },
+                                rates: Object.entries(exchangeRates).map(([currency, values]) => ({
+                                    component: 'Rate',
+                                    name: currency,
+                                    buy: String(values.buy),
+                                    sell: String(values.sell),
+                                })),
+                            },
+                            // можна додати ще банків аналогічно
                         ],
                     },
                 },
                 publish: 1,
             }
         );
+
 
 
         return NextResponse.json({ message: 'Data scraped and saved to Storyblok' });
