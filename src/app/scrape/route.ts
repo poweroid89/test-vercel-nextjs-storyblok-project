@@ -21,7 +21,7 @@ export async function GET(request: Request) {
         const page = await browser.newPage();
 
         // Навігація на сайт
-        await page.goto('https://api.ipify.org/?format=json', { waitUntil: 'domcontentloaded' });
+        await page.goto('https://api.ipify.org/', { waitUntil: 'domcontentloaded' });
 
         // Збирання курсів валют як рядки
         const exchangeRates = {
