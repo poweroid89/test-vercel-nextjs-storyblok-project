@@ -38,24 +38,35 @@ export async function GET(request: Request) {
         });
 
         await client.put(
-            `/spaces/${process.env.STORYBLOK_SPACE_ID}/stories/79844212156925`,
+            `/spaces/${process.env.STORYBLOK_SPACE_ID}/stories/80091874109660`,
             {
                 story: {
                     name: 'Bank List',
                     slug: 'bank-list',
                     content: {
-                        component: 'Bank',
-                        id: 'bank-list-001',
-                        name: websiteContent,
-                        logo: {
-                            filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
-                        },
-                        rates: exchangeRates,
+                        component: 'BankList', // головний Content Type
+                        banks: [
+                            {
+                                component: 'Bank',
+                                name: websiteContent,
+                                logo: {
+                                    filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
+                                },
+                                rates: Object.entries(exchangeRates).map(([currency, values]) => ({
+                                    component: 'Rate',
+                                    name: currency,        // поле "name" у Rate
+                                    buy: String(values.buy),
+                                    sell: String(values.sell),
+                                })),
+                            },
+                            // можна додавати ще банків сюди
+                        ],
                     },
                 },
                 publish: 1,
             }
         );
+
 
         return NextResponse.json({ message: 'Data scraped and saved to Storyblok' });
     } catch (error) {
