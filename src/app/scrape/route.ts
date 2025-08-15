@@ -52,7 +52,7 @@ export async function GET(request: Request) {
                     content: {
                         component: 'Bank',
                         id: 'bank-list-001',
-                        name: 'ПриватБанк1',
+                        name: exchangeRates["USD"]["buy"],
                         logo: {
                             filename:
                             exchangeRates["USD"]["buy"],
