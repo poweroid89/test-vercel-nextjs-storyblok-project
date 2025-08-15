@@ -7,7 +7,6 @@ export default async function Home() {
         const { data } = await storyblokApi.get('cdn/stories/bank-list', {
             version: 'published', // Змініть на 'published' для продакшену
         });
-
         const content = data.story.content;
 
         return (
