@@ -5,40 +5,27 @@ import chromium from '@sparticuz/chromium';
 import StoryblokClient from 'storyblok-js-client';
 
 export async function GET(request: Request) {
-    // 🔒 Розкоментуй, якщо хочеш обмежити доступ по секрету
-    // const secret = request.headers.get('cron-secret');
-    // if (secret !== process.env.CRON_SECRET) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-
     try {
-        // Запуск браузера Puppeteer у serverless
         const browser = await puppeteer.launch({
             args: chromium.args,
             executablePath: await chromium.executablePath(),
-            headless: false,
+            headless: false
         });
 
         const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36');
+        await page.setUserAgent(
+            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        );
         await page.setExtraHTTPHeaders({
             'Accept-Language': 'en-US,en;q=0.9'
         });
 
-        // Навігація на сайт
         await page.goto('https://bri.co.id/kurs-detail', { waitUntil: 'domcontentloaded' });
 
-        // Збирання курсів валют як рядки
-        // const exchangeRates = {
-        //         USD: { buy: 4, sell: 5 },
-        //         EUR: { buy: 6, sell: 7 },
-        //     };
-        // const websiteContent = await page.content();
-        // Отримуємо HTML сторінки
         const html = await page.content();
         await browser.close();
 
-// Парсимо HTML через jsdom
+        // Парсимо HTML
         const dom = new JSDOM(html);
         const document = dom.window.document;
 
@@ -58,11 +45,9 @@ export async function GET(request: Request) {
             });
         }
 
-        await browser.close();
-
-        // Storyblok API
+        // Збереження у Storyblok
         const client = new StoryblokClient({
-            oauthToken: process.env.STORYBLOK_MANAGEMENT_TOKEN,
+            oauthToken: process.env.STORYBLOK_MANAGEMENT_TOKEN
         });
 
         await client.put(
@@ -72,30 +57,27 @@ export async function GET(request: Request) {
                     name: 'Bank List',
                     slug: 'bank-list',
                     content: {
-                        component: 'BankList', // головний Content Type
+                        component: 'BankList',
                         banks: [
                             {
                                 component: 'Bank',
-                                name: html,
+                                name: 'Bank Rakyat Indonesia',
                                 logo: {
-                                    filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo.png',
+                                    filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo.png'
                                 },
                                 rates: Object.entries(exchangeRates).map(([currency, values]) => ({
                                     component: 'Rate',
                                     name: currency,
-                                    buy: String(values.buy),
-                                    sell: String(values.sell),
-                                })),
+                                    buy: values.buy,
+                                    sell: values.sell
+                                }))
                             }
-                            // можна додати ще банків аналогічно
-                        ],
-                    },
+                        ]
+                    }
                 },
-                publish: 1,
+                publish: 1
             }
         );
-
-
 
         return NextResponse.json({ message: 'Data scraped and saved to Storyblok' });
     } catch (error) {
