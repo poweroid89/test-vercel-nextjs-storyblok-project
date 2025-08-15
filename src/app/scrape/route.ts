@@ -53,7 +53,7 @@ export async function GET(request: Request) {
                         component: 'Bank',
                         id: 'bank-list-001',
                         Name: 'ПриватБанк',
-                        Logo: {
+                        logo: {
                             filename:
                                 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
                         },
