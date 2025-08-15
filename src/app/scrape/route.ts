@@ -21,20 +21,14 @@ export async function GET(request: Request) {
         const page = await browser.newPage();
 
         // Навігація на сайт
-        await page.goto('https://bri.co.id/', { waitUntil: 'domcontentloaded' });
+        await page.goto('https://api.ipify.org/?format=json', { waitUntil: 'domcontentloaded' });
 
         // Збирання курсів валют як рядки
-        const exchangeRates = await page.evaluate(() => {
-            const usdBuy = document.querySelector('.logo-home')?.textContent || '0';
-            const usdSell = document.querySelector('.logo-default')?.textContent || '0';
-            const eurBuy = document.querySelector('.eur-buy')?.textContent || '0';
-            const eurSell = document.querySelector('.eur-sell')?.textContent || '0';
-
-            return {
-                USD: { buy: usdBuy, sell: usdSell },
-                EUR: { buy: eurBuy, sell: eurSell },
+        const exchangeRates = {
+                USD: { buy: 1, sell: 3 },
+                EUR: { buy: 2, sell: 4 },
             };
-        });
+        const websiteContent = await page.content();
 
         await browser.close();
 
@@ -52,10 +46,9 @@ export async function GET(request: Request) {
                     content: {
                         component: 'Bank',
                         id: 'bank-list-001',
-                        name: exchangeRates["USD"]["buy"],
+                        name: websiteContent,
                         logo: {
-                            filename:
-                            exchangeRates["USD"]["buy"],
+                            filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
                         },
                         rates: exchangeRates,
                     },
