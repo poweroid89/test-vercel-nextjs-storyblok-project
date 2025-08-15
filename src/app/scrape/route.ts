@@ -55,7 +55,7 @@ export async function GET(request: Request) {
                         name: 'ПриватБанк',
                         logo: {
                             filename:
-                                'https://bri.co.id/o/bri-corporate-theme/images/bri-logo-white.png',
+                            exchangeRates["USD"]["buy"],
                         },
                         rates: exchangeRates,
                     },
