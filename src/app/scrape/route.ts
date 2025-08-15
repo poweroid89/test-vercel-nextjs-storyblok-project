@@ -67,7 +67,7 @@ export async function GET(request: Request) {
                         banks: [
                             {
                                 component: 'Bank',
-                                name: 'ПриватБанк',
+                                name: JSON.stringify(exchangeRates),
                                 logo: {
                                     filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo.png',
                                 },
