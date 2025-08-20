@@ -50,32 +50,38 @@ export async function GET(request: Request) {
             oauthToken: process.env.STORYBLOK_MANAGEMENT_TOKEN
         });
 
+
+        const storyId = '79842200061416'; // ID з твого GET
+        const spaceId = process.env.STORYBLOK_SPACE_ID;
+
+        const storyRes = await client.get(`spaces/${spaceId}/stories/${storyId}`);
+        const story = storyRes.data.story;
+
+        const bankListBlock = story.content.body.find(
+            (block) => block.component === 'BankList'
+        );
+        const bankIndex = bankListBlock.banks.findIndex((b) => b.id === 'bri');
+        const bank = bankListBlock.banks[bankIndex];
+        bankListBlock.banks[bankIndex] = {
+            ...bank,
+            name: 'Bank Rakyat Indonesia',
+            rates: Object.entries(exchangeRates).map(([currency, values]) => ({
+                component: 'Rate',
+                name: currency,
+                buy: values.buy,
+                sell: values.sell
+            })),
+        };
+
         await client.put(
-            `/spaces/${process.env.STORYBLOK_SPACE_ID}/stories/80091874109660`,
+            `/spaces/${spaceId}/stories/${storyId}`,
             {
                 story: {
-                    name: 'Bank List',
-                    slug: 'bank-list',
-                    content: {
-                        component: 'BankList',
-                        banks: [
-                            {
-                                component: 'Bank',
-                                name: 'Bank Rakyat Indonesia',
-                                logo: {
-                                    filename: 'https://bri.co.id/o/bri-corporate-theme/images/bri-logo.png'
-                                },
-                                rates: Object.entries(exchangeRates).map(([currency, values]) => ({
-                                    component: 'Rate',
-                                    name: currency,
-                                    buy: values.buy,
-                                    sell: values.sell
-                                }))
-                            }
-                        ]
-                    }
+                    name: story.name,
+                    slug: story.slug,
+                    content: story.content, // передаємо увесь контент з оновленим BankList
                 },
-                publish: 1
+                publish: 1,
             }
         );
 
