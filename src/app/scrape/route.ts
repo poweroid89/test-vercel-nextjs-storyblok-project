@@ -58,9 +58,9 @@ export async function GET(request: Request) {
         const story = storyRes.data.story;
 
         const bankListBlock = story.content.body.find(
-            (block) => block.component === 'BankList'
+            (block: any) => block.component === 'BankList'
         );
-        const bankIndex = bankListBlock.banks.findIndex((b) => b.id === 'bri');
+        const bankIndex = bankListBlock.banks.findIndex((b: any) => b.id === 'bri');
         const bank = bankListBlock.banks[bankIndex];
         bankListBlock.banks[bankIndex] = {
             ...bank,
