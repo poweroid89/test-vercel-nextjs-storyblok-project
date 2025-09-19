@@ -1,116 +1,68 @@
-import { NextResponse } from 'next/server';
-import { JSDOM } from 'jsdom';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
-import StoryblokClient from 'storyblok-js-client';
+import { NextResponse } from "next/server";
+import { parseBRI } from "./parsers/bri";
+import { parseBCA } from "./parsers/bca";
+import { parseMandiri } from "./parsers/mandiri";
+import { parseBNI } from "./parsers/bni";
+import { parseCimbniaga } from "./parsers/cimbniaga";
+import { parseDanamon } from "./parsers/danamon";
+import { parseOCBC } from "./parsers/ocbc";
+import { parseBankmega } from "./parsers/bankmega";
+import { parseBTN } from "./parsers/btn";
+import { parseMaybank } from "./parsers/maybank";
+import { parseBJB } from "./parsers/bjb";
+import { parsePermata } from "./parsers/permata";
 
-// ==== Типи для Storyblok блоків ====
-interface Rate {
-    component: 'Rate';
-    name: string;
-    buy: string;
-    sell: string;
-}
-
-interface Bank {
-    id: string;
-    name: string;
-    rates: Rate[];
-}
-
-interface BankList {
-    component: 'BankList';
-    banks: Bank[];
-}
-
-export async function GET() {
+export async function GET(req: Request) {
     try {
-        // Запуск браузера
-        const browser = await puppeteer.launch({
-            args: chromium.args,
-            executablePath: await chromium.executablePath(),
-            headless: true, // на Vercel headless:true обов’язково
-        });
+        const { searchParams } = new URL(req.url);
+        const bank = searchParams.get("bank");
 
-        const page = await browser.newPage();
-        await page.setUserAgent(
-            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
-        );
-        await page.setExtraHTTPHeaders({
-            'Accept-Language': 'en-US,en;q=0.9',
-        });
-
-        await page.goto('https://bri.co.id/kurs-detail');
-
-        const html = await page.content();
-        await browser.close();
-
-        // Парсимо HTML
-        const dom = new JSDOM(html);
-        const document = dom.window.document;
-
-        const tableBody = document.querySelector('#_bri_kurs_detail_portlet_display2 tbody');
-        const exchangeRates: Record<string, { buy: string; sell: string }> = {};
-
-        if (tableBody) {
-            tableBody.querySelectorAll('tr').forEach((row) => {
-                const cells = row.querySelectorAll('td');
-                const currency = cells[0]?.querySelector('.text')?.textContent?.trim();
-                const buy = cells[1]?.textContent?.trim() ?? '';
-                const sell = cells[2]?.textContent?.trim() ?? '';
-
-                if (currency) {
-                    exchangeRates[currency] = { buy, sell };
-                }
-            });
+        let result;
+        switch (bank) {
+            case "bri.co.id":
+                result = await parseBRI();
+                break;
+            case "bca.co.id":
+                result = await parseBCA();
+                break;
+            case "bankmandiri.co.id":
+                result = await parseMandiri(); // proxy
+                break;
+            case "bni.co.id":
+                result = await parseBNI(); // proxy
+                break;
+            case "cimbniaga.co.id":
+                result = await parseCimbniaga();
+                break;
+            case "danamon.co.id":
+                result = await parseDanamon();
+                break;
+            case "ocbc.id":
+                result = await parseOCBC(); // proxy blocked by ip
+                break;
+            case "bankmega.com":
+                result = await parseBankmega();
+                break;
+            case "btn.co.id":
+                result = await parseBTN();
+                break;
+            case "maybank.co.id":
+                result = await parseMaybank();
+                break;
+            case "bankbjb.co.id":
+                result = await parseBJB();
+                break;
+            case "permatabank.com":
+                result = await parsePermata(); // proxy
+                break;
+            default:
+                return NextResponse.json(
+                    { error: "Unknown or missing bank parameter" },
+                    { status: 400 }
+                );
         }
 
-        // Збереження у Storyblok
-        const client = new StoryblokClient({
-            oauthToken: process.env.STORYBLOK_MANAGEMENT_TOKEN,
-        });
-
-        const storyId = '79842200061416'; // ID сторінки
-        const spaceId = process.env.STORYBLOK_SPACE_ID;
-
-        const storyRes = await client.get(`spaces/${spaceId}/stories/${storyId}`);
-        const story = storyRes.data.story;
-
-        // Знаходимо BankList
-        const bankListBlock = story.content.body.find(
-            (block: BankList) => block.component === 'BankList'
-        ) as BankList;
-
-        const bankIndex = bankListBlock.banks.findIndex((b: Bank) => b.id === 'bri');
-
-        if (bankIndex === -1) {
-            throw new Error('Bank with id "bri" not found');
-        }
-
-        const bank = bankListBlock.banks[bankIndex];
-
-        bankListBlock.banks[bankIndex] = {
-            ...bank,
-            name: 'Bank Rakyat Indonesia',
-            rates: Object.entries(exchangeRates).map(([currency, values]) => ({
-                component: 'Rate',
-                name: currency,
-                buy: values.buy,
-                sell: values.sell,
-            })),
-        };
-
-        // Оновлюємо сторі
-        await client.put(`/spaces/${spaceId}/stories/${storyId}`, {
-            story: {
-                name: story.name,
-                slug: story.slug,
-                content: story.content, // передаємо увесь контент з оновленим BankList
-            },
-            publish: 1,
-        });
-
-        return NextResponse.json({ message: 'Data scraped and saved to Storyblok' });
+        return NextResponse.json(result);
     } catch (err) {
         return NextResponse.json(
             { error: (err as Error).message },
