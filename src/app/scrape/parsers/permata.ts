@@ -45,12 +45,8 @@ export async function parsePermata() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
-            const buyRaw = parseFloat((cells[1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sellRaw = parseFloat((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-
-            // Перевіряємо, чи значення є числом, інакше встановлюємо 0
-            const buy = isNaN(parseFloat(buyRaw.replace(/,/g, ''))) ? 0 : buyRaw;
-            const sell = isNaN(parseFloat(sellRaw.replace(/,/g, ''))) ? 0 : sellRaw;
+            const buy = parseFloat((cells[1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseFloat((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
 
             // Додаємо до exchangeRates лише якщо валюта визначена
             if (currency) {

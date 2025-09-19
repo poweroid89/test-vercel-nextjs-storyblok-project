@@ -48,12 +48,8 @@ export async function parseMaybank() {
 
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
-            const buyRaw = parseFloat((cells[cells.length - 1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sellRaw = parseFloat((cells[cells.length - 2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-
-            // Перевіряємо, чи значення є числом, інакше встановлюємо 0
-            const buy = isNaN(parseFloat(buyRaw.replace(/,/g, ''))) ? 0 : buyRaw;
-            const sell = isNaN(parseFloat(sellRaw.replace(/,/g, ''))) ? 0 : sellRaw;
+            const buy = parseFloat((cells[cells.length - 1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseFloat((cells[cells.length - 2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
 
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
