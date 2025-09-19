@@ -58,8 +58,8 @@ export async function parseBRI() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.querySelector('.text')?.textContent?.trim();
-            const buy = parseFloat((cells[1]?.textContent?.trim() ?? 0).replace(/,/g, ''));
-            const sell = parseFloat((cells[2]?.textContent?.trim() ?? 0).replace(/,/g, ''));
+            const buy = parseFloat((cells[1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseFloat((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
             }

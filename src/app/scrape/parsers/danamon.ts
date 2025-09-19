@@ -46,8 +46,8 @@ export async function parseDanamon() {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.querySelector('span')?.textContent?.trim();
             if (currency && currency.includes('IDR')) {
-                const buy = parseFloat((cells[1]?.querySelector('span')?.textContent?.trim() ?? 0).replace(/,/g, ''));
-                const sell = parseFloat((cells[2]?.querySelector('span')?.textContent?.trim() ?? 0).replace(/,/g, ''));
+                const buy = parseFloat((cells[1]?.querySelector('span')?.textContent?.trim() ?? '0').replace(/,/g, ''));
+                const sell = parseFloat((cells[2]?.querySelector('span')?.textContent?.trim() ?? '0').replace(/,/g, ''));
                 exchangeRates[currency] = { buy, sell };
             }
         });

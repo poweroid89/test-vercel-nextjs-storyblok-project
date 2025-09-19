@@ -45,8 +45,8 @@ export async function parseOCBC() {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
             if (currency && currency !== 'IDR') {
-                const buy = parseFloat((cells[1]?.textContent?.trim() ?? 0).replace(/,/g, ''));
-                const sell = parseFloat((cells[2]?.textContent?.trim() ?? 0).replace(/,/g, ''));
+                const buy = parseFloat((cells[1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+                const sell = parseFloat((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
                 exchangeRates[currency] = { buy, sell };
             }
         });
