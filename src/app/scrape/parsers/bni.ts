@@ -38,7 +38,7 @@ export async function parseBNI() {
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    const tableBody = document.querySelectorAll<HTMLTableElement>('.table_info_counter')[2]?.querySelector('tbody')?.querySelectorAll('tr');
+    const tableBody = document.querySelectorAll<HTMLTableElement>('.table_info_counter')[2]?.querySelector('tbody');
     const exchangeRates: Record<string, { buy: number; sell: number }> = {};
 
     if (tableBody) {
