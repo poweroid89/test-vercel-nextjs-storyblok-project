@@ -66,8 +66,11 @@ export async function parseBTN() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.querySelector('p')?.textContent?.trim();
-            const buy = parseFloat((cells[3]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseFloat((cells[4]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const buyText = cells[3]?.textContent?.trim() ?? '0';
+            const sellText = cells[4]?.textContent?.trim() ?? '0';
+
+            const buy = parseFloat(buyText.replace(/\./g, '').replace(',', '.'));
+            const sell = parseFloat(sellText.replace(/\./g, '').replace(',', '.'));
 
             if (currency) {
                 exchangeRates[currency] = { buy, sell };

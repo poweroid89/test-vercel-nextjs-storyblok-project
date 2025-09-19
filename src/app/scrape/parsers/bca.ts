@@ -44,8 +44,11 @@ export async function parseBCA() {
     if (tableBody) {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const currency = row.querySelector('.a-body-state span')?.textContent?.trim();
-            const buy = parseFloat((row.querySelector('td[rate-type="eRate-buy"] p')?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseFloat((row.querySelector('td[rate-type="eRate-sell"] p')?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const buyText = row.querySelector('td[rate-type="eRate-buy"] p')?.textContent?.trim() ?? '0';
+            const sellText = row.querySelector('td[rate-type="eRate-sell"] p')?.textContent?.trim() ?? '0';
+
+            const buy = parseFloat(buyText.replace(/\./g, '').replace(',', '.'));
+            const sell = parseFloat(sellText.replace(/\./g, '').replace(',', '.'));
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
             }
