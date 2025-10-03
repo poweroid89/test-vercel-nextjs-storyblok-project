@@ -44,7 +44,7 @@ export async function parseDanamon() {
     if (tableBody) {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
-            const currency = cells[0]?.querySelector('span')?.textContent?.trim();
+            const currency = cells[0]?.textContent?.match(/\(([^)]+)\)/)?.[1]?.trim();
             if (currency && currency.includes('IDR')) {
                 const buy = parseFloat((cells[1]?.querySelector('span')?.textContent?.trim() ?? '0').replace(/,/g, ''));
                 const sell = parseFloat((cells[2]?.querySelector('span')?.textContent?.trim() ?? '0').replace(/,/g, ''));
