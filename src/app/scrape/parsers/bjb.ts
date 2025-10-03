@@ -32,6 +32,7 @@ export async function parseBJB() {
     });
     await page.goto('https://www.bankbjb.co.id/page/daftar-kurs');
 
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 5000)));
     const html = await page.content();
     await browser.close();
 

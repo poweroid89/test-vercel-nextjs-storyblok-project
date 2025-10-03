@@ -30,7 +30,7 @@ export async function parseDanamon() {
         'Cache-Control': 'no-cache',
         'Upgrade-Insecure-Requests': '1',
     });
-    await page.goto('https://www.danamon.co.id/id/Kurs-Details');
+    await page.goto('https://www.danamon.co.id/');
 
     const html = await page.content();
     await browser.close();
@@ -38,7 +38,7 @@ export async function parseDanamon() {
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    const tableBody = document.querySelector('.master tbody');
+    const tableBody = document.querySelector('.dcw-currencies-table tbody');
     const exchangeRates: Record<string, { buy: number; sell: number }> = {};
 
     if (tableBody) {
