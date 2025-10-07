@@ -30,7 +30,7 @@ export async function parsePanin() {
         'Cache-Control': 'no-cache',
         'Upgrade-Insecure-Requests': '1',
     });
-    await page.goto('https://www.panin.co.id/en/kurs');
+    await page.goto('https://www.panin.co.id/id/kurs');
 
     await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 5000)));
     const html = await page.content();
