@@ -17,6 +17,16 @@ import { parseHSBC } from "./parsers/hsbc";
 import { parseDBS } from "./parsers/dbs";
 import { parseUOB } from "./parsers/uob";
 
+interface Rate {
+    buy: number;
+    sell: number;
+}
+
+interface BankRatesResult {
+    bank: string;
+    rates: Record<string, Rate>;
+}
+
 interface ExchangeRateRow {
     bank: string;
     currency: string;
@@ -89,21 +99,17 @@ export async function GET(req: Request) {
 
         const timestamp = new Date().toISOString();
 
-        // Формуємо масив для вставки
         const rows: ExchangeRateRow[] = Object.entries(result.rates).map(
-            ([currency, { buy, sell }]: any) => ({
+            ([currency, rate]) => ({
                 bank: result.bank,
                 currency,
-                buy,
-                sell,
+                buy: rate.buy,
+                sell: rate.sell,
                 timestamp,
             })
         );
 
-        // Вставляємо в Supabase
-        const { error } = await supabase
-            .from("exchange_rates")
-            .insert(rows);
+        const { error } = await supabase.from("exchange_rates").insert(rows);
 
         if (error) {
             console.error("❌ Supabase insert error:", error.message);
