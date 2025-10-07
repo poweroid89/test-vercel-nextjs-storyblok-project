@@ -46,8 +46,8 @@ export async function parseBJB() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
-            const buy = (() => { const n = parseFloat(cells[cells.length - 1]?.textContent?.trim().replace(/,/g, '') ?? '0'); return isNaN(n) ? 0 : (n < 1000 ? Math.round(n * 1000) : n); })();
-            const sell = (() => { const n = parseFloat(cells[cells.length - 2]?.textContent?.trim().replace(/,/g, '') ?? '0'); return isNaN(n) ? 0 : (n < 1000 ? Math.round(n * 1000) : n); })();
+            const buy = parseNumberSafe((cells[cells.length - 1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseNumberSafe((cells[cells.length - 2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
 
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
