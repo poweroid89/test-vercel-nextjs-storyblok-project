@@ -46,8 +46,8 @@ export async function parseDanamon() {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.match(/\(([^)]+)\)/)?.[1]?.trim();
             if (currency) {
-                const buy = parseNumberSafe((cells[1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-                const sell = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+                const buy = parseNumberSafe((cells[1]?.textContent?.trim() ?? '0').replace(/\./g, '').replace(',', '.'));
+                const sell = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/\./g, '').replace(',', '.'));
                 exchangeRates[currency] = { buy, sell };
             }
         });
