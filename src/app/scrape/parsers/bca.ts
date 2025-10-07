@@ -34,7 +34,6 @@ export async function parseBCA() {
 
     const html = await page.content();
     await browser.close();
-    console.log(html)
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
@@ -47,8 +46,8 @@ export async function parseBCA() {
             const buyText = row.querySelector('td[rate-type="eRate-buy"] p')?.textContent?.trim() ?? '0';
             const sellText = row.querySelector('td[rate-type="eRate-sell"] p')?.textContent?.trim() ?? '0';
 
-            const buy = parseFloat(buyText.replace(/\./g, '').replace(',', '.'));
-            const sell = parseFloat(sellText.replace(/\./g, '').replace(',', '.'));
+            const buy = parseNumberSafe(buyText.replace(/\./g, '').replace(',', '.'));
+            const sell = parseNumberSafe(sellText.replace(/\./g, '').replace(',', '.'));
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
             }
@@ -56,4 +55,12 @@ export async function parseBCA() {
     }
 
     return { bank: "bca.co.id", rates: exchangeRates };
+}
+
+function parseNumberSafe(value: unknown): number {
+    if (typeof value !== 'string') return 0;
+    const cleaned = value.replace(/[^\d.-]/g, '').trim();
+    if (cleaned === '' || isNaN(Number(cleaned))) return 0;
+
+    return parseFloat(cleaned);
 }

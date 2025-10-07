@@ -46,8 +46,8 @@ export async function parseBJB() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
-            const buy = parseFloat((cells[cells.length - 1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseFloat((cells[cells.length - 2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const buy = parseNumberSafe((cells[cells.length - 1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseNumberSafe((cells[cells.length - 2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
 
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
@@ -56,4 +56,12 @@ export async function parseBJB() {
     }
 
     return { bank: "bankbjb.co.id", rates: exchangeRates };
+}
+
+function parseNumberSafe(value: unknown): number {
+    if (typeof value !== 'string') return 0;
+    const cleaned = value.replace(/[^\d.-]/g, '').trim();
+    if (cleaned === '' || isNaN(Number(cleaned))) return 0;
+
+    return parseFloat(cleaned);
 }

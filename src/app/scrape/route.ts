@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabase } from '../../../lib/supabaseClient';
 import { parseBRI } from "./parsers/bri";
 import { parseBCA } from "./parsers/bca";
 import { parseMandiri } from "./parsers/mandiri";
@@ -11,6 +12,18 @@ import { parseBTN } from "./parsers/btn";
 import { parseMaybank } from "./parsers/maybank";
 import { parseBJB } from "./parsers/bjb";
 import { parsePermata } from "./parsers/permata";
+import { parsePanin } from "./parsers/panin";
+import { parseHSBC } from "./parsers/hsbc";
+import { parseDBS } from "./parsers/dbs";
+import { parseUOB } from "./parsers/uob";
+
+interface ExchangeRateRow {
+    bank: string;
+    currency: string;
+    buy: number;
+    sell: number;
+    timestamp: string;
+}
 
 export async function GET(req: Request) {
     try {
@@ -55,11 +68,46 @@ export async function GET(req: Request) {
             case "permatabank.com":
                 result = await parsePermata(); // proxy
                 break;
+            case "panin.co.id":
+                result = await parsePanin();
+                break;
+            case "hsbc.co.id":
+                result = await parseHSBC();
+                break;
+            case "dbs.id":
+                result = await parseDBS();
+                break;
+            case "uob.co.id":
+                result = await parseUOB();
+                break;
             default:
                 return NextResponse.json(
                     { error: "Unknown or missing bank parameter" },
                     { status: 400 }
                 );
+        }
+
+        const timestamp = new Date().toISOString();
+
+        // Формуємо масив для вставки
+        const rows: ExchangeRateRow[] = Object.entries(result.rates).map(
+            ([currency, { buy, sell }]: any) => ({
+                bank: result.bank,
+                currency,
+                buy,
+                sell,
+                timestamp,
+            })
+        );
+
+        // Вставляємо в Supabase
+        const { error } = await supabase
+            .from("exchange_rates")
+            .insert(rows);
+
+        if (error) {
+            console.error("❌ Supabase insert error:", error.message);
+            return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json(result);

@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import { JSDOM } from 'jsdom';
 
-export async function parseBankmega() {
+export async function parseHSBC() {
     const browser = await puppeteer.launch({
         args: [
             ...(chromium.args || []),
@@ -30,32 +30,42 @@ export async function parseBankmega() {
         'Cache-Control': 'no-cache',
         'Upgrade-Insecure-Requests': '1',
     });
-    await page.goto('https://www.bankmega.com/en/business/treasury-en/');
+    await page.goto('https://www.hsbc.co.id/1/2/en/personal/foreign-exchange/real-time-fx-rates#banknote-rates');
 
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 5000)));
     const html = await page.content();
     await browser.close();
 
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    const tableBody = document.querySelector('.table-sm tbody');
+    const tableBody = document.querySelector('#banknote-rates tbody');
     const exchangeRates: Record<string, { buy: number; sell: number }> = {};
 
     if (tableBody) {
-        tableBody.querySelectorAll('tr').forEach((row) => {
+        Array.from(tableBody.querySelectorAll('tr')).slice(1).forEach((row) => {
             const cells = row.querySelectorAll('td');
-            const currency = cells[0]?.textContent?.trim();
-            const buy = parseNumberSafe((cells[3]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const currency = cells[0]?.textContent?.match(/\(([^)]+)\)/)?.[1]?.trim();
 
+            const rawBuy = cells[1]?.innerHTML ?? '';
+            const rawSell = cells[2]?.innerHTML ?? '';
+
+            const cleanBuy = rawBuy.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '').trim();
+            const cleanSell = rawSell.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '').trim();
+
+            const buy = parseNumberSafe(cleanBuy.replace(/,/g, '')) || 0;
+            const sell = parseNumberSafe(cleanSell.replace(/,/g, '')) || 0;
+
+            // Додаємо до exchangeRates лише якщо валюта визначена
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
             }
         });
     }
 
-    return { bank: "bankmega.com", rates: exchangeRates };
+    return { bank: "hsbc.co.id", rates: exchangeRates };
 }
+
 function parseNumberSafe(value: unknown): number {
     if (typeof value !== 'string') return 0;
     const cleaned = value.replace(/[^\d.-]/g, '').trim();

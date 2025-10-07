@@ -48,8 +48,8 @@ export async function parseMandiri() {
             const buyText = cells[cells.length - 2]?.textContent?.trim() ?? '0';
             const sellText = cells[cells.length - 1]?.querySelector('strong')?.textContent?.trim() ?? '0';
 
-            const buy = parseFloat(buyText.replace(/\./g, '').replace(',', '.'));
-            const sell = parseFloat(sellText.replace(/\./g, '').replace(',', '.'));
+            const buy = parseNumberSafe(buyText.replace(/\./g, '').replace(',', '.'));
+            const sell = parseNumberSafe(sellText.replace(/\./g, '').replace(',', '.'));
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
             }
@@ -57,4 +57,12 @@ export async function parseMandiri() {
     }
 
     return { bank: "bankmandiri.co.id", rates: exchangeRates };
+}
+
+function parseNumberSafe(value: unknown): number {
+    if (typeof value !== 'string') return 0;
+    const cleaned = value.replace(/[^\d.-]/g, '').trim();
+    if (cleaned === '' || isNaN(Number(cleaned))) return 0;
+
+    return parseFloat(cleaned);
 }

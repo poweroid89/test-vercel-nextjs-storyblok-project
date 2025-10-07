@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 import { JSDOM } from 'jsdom';
 
-export async function parseBankmega() {
+export async function parsePanin() {
     const browser = await puppeteer.launch({
         args: [
             ...(chromium.args || []),
@@ -30,15 +30,16 @@ export async function parseBankmega() {
         'Cache-Control': 'no-cache',
         'Upgrade-Insecure-Requests': '1',
     });
-    await page.goto('https://www.bankmega.com/en/business/treasury-en/');
+    await page.goto('https://www.panin.co.id/en/kurs');
 
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 5000)));
     const html = await page.content();
     await browser.close();
 
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    const tableBody = document.querySelector('.table-sm tbody');
+    const tableBody = document.querySelector('.js-kurs-idr tbody');
     const exchangeRates: Record<string, { buy: number; sell: number }> = {};
 
     if (tableBody) {
@@ -46,16 +47,18 @@ export async function parseBankmega() {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
             const buy = parseNumberSafe((cells[3]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseNumberSafe((cells[4]?.textContent?.trim() ?? '0').replace(/,/g, ''));
 
+            // Додаємо до exchangeRates лише якщо валюта визначена
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
             }
         });
     }
 
-    return { bank: "bankmega.com", rates: exchangeRates };
+    return { bank: "panin.co.id", rates: exchangeRates };
 }
+
 function parseNumberSafe(value: unknown): number {
     if (typeof value !== 'string') return 0;
     const cleaned = value.replace(/[^\d.-]/g, '').trim();

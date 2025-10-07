@@ -9,7 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+/src/app/scrape/route.ts_storyblock
 # testing
 /coverage
 
