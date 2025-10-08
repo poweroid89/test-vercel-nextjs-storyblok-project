@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     );
 
     // Групуємо по банках
-    const grouped = latestByBankCurrency.reduce<Record<string, Record<string, Omit<ExchangeRate, 'bank'>>>>(
+    const grouped = latestByBankCurrency.reduce<Record<string, Record<string, Omit<ExchangeRate, 'bank' | 'currency'>>>>(
         (acc, row) => {
             if (!acc[row.bank]) acc[row.bank] = {};
             acc[row.bank][row.currency] = {
