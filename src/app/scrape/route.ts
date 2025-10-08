@@ -16,6 +16,7 @@ import { parsePanin } from "./parsers/panin";
 import { parseHSBC } from "./parsers/hsbc";
 import { parseDBS } from "./parsers/dbs";
 import { parseUOB } from "./parsers/uob";
+import { parseBI } from "./parsers/bi";
 
 interface Rate {
     buy: number;
@@ -90,6 +91,9 @@ export async function GET(req: Request) {
             case "uob.co.id":
                 result = await parseUOB();
                 break;
+            case "bi.go.id":
+                result = await parseBI();
+                break;
             default:
                 return NextResponse.json(
                     { error: "Unknown or missing bank parameter" },
@@ -109,7 +113,9 @@ export async function GET(req: Request) {
             })
         );
 
-        const { error } = await supabase.from("exchange_rates").insert(rows);
+        const tableName = bank === "bi.go.id" ? "exchange_rates_bi" : "exchange_rates";
+
+        const { error } = await supabase.from(tableName).insert(rows);
 
         if (error) {
             console.error("❌ Supabase insert error:", error.message);
