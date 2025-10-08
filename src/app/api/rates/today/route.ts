@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '../../../../../lib/supabaseClient';
 
+interface ExchangeRate {
+    bank: string;
+    currency: string;
+    buy: number;
+    sell: number;
+    timestamp: string;
+}
+
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const bankParam = searchParams.get('bank');
@@ -24,25 +32,32 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: 'Failed to fetch today rates' }, { status: 500 });
     }
 
+    if (!data) {
+        return NextResponse.json({ date: today, banks: {} });
+    }
+
     // Беремо лише найновіші записи для кожного bank+currency
     const latestByBankCurrency = Object.values(
-        data.reduce((acc, row) => {
+        data.reduce<Record<string, ExchangeRate>>((acc, row) => {
             const key = `${row.bank}-${row.currency}`;
             if (!acc[key]) acc[key] = row; // перший найновіший, бо order(desc)
             return acc;
-        }, {} as Record<string, any>)
+        }, {})
     );
 
     // Групуємо по банках
-    const grouped = latestByBankCurrency.reduce((acc: any, row: any) => {
-        if (!acc[row.bank]) acc[row.bank] = {};
-        acc[row.bank][row.currency] = {
-            buy: row.buy,
-            sell: row.sell,
-            timestamp: row.timestamp,
-        };
-        return acc;
-    }, {});
+    const grouped = latestByBankCurrency.reduce<Record<string, Record<string, Omit<ExchangeRate, 'bank'>>>>(
+        (acc, row) => {
+            if (!acc[row.bank]) acc[row.bank] = {};
+            acc[row.bank][row.currency] = {
+                buy: row.buy,
+                sell: row.sell,
+                timestamp: row.timestamp,
+            };
+            return acc;
+        },
+        {}
+    );
 
     return NextResponse.json({
         date: today,
