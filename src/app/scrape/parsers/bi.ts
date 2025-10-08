@@ -70,8 +70,8 @@ export async function parseBI() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
-            const buy = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseNumberSafe((cells[3]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const buy = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/\./g, '').replace(',', '.'));
+            const sell = parseNumberSafe((cells[3]?.textContent?.trim() ?? '0').replace(/\./g, '').replace(',', '.'));
 
             // Додаємо до exchangeRates лише якщо валюта визначена
             if (currency) {
