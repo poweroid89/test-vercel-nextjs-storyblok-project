@@ -44,5 +44,5 @@ jobs:
           for url in "${urls[@]}"; do
             echo "Fetching $url"
             curl -s "$url" > /dev/null
-            sleep 120  # пауза 2 хвилини між запитами
+            sleep 60
           done
