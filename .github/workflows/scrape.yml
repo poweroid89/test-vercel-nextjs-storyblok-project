@@ -1,0 +1,48 @@
+name: Scrape Banks
+
+# Запускати раз на годину
+on:
+  schedule:
+    - cron: '0 * * * *'  # щогодини на 0-й хвилині
+  workflow_dispatch:  # дозволяє запускати вручну
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run scrape script
+        run: |
+          urls=(
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bri.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bankmega.com"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bca.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bankbjb.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bni.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=btn.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=cimbniaga.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=danamon.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bankmandiri.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=maybank.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=ocbc.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=permatabank.com"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=panin.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=hsbc.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=dbs.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=uob.co.id"
+            "https://test-vercel-nextjs-storyblok-projec.vercel.app/scrape?bank=bi.go.id"
+          )
+
+          for url in "${urls[@]}"; do
+            echo "Fetching $url"
+            curl -s "$url" > /dev/null
+            sleep 120  # пауза 2 хвилини між запитами
+          done
