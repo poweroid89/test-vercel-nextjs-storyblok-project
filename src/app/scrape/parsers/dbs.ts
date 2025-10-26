@@ -35,11 +35,10 @@ export async function parseDBS() {
     await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 5000)));
     const html = await page.content();
     await browser.close();
-
     const dom = new JSDOM(html);
     const document = dom.window.document;
 
-    const tableBody = document.querySelector('.tbl-primary tbody');
+    const tableBody = document.querySelector('tbody');
     const exchangeRates: Record<string, { buy: number; sell: number }> = {};
 
     if (tableBody) {
