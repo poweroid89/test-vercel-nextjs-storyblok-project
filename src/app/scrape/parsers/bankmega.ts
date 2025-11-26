@@ -45,8 +45,8 @@ export async function parseBankmega() {
         tableBody.querySelectorAll('tr').forEach((row) => {
             const cells = row.querySelectorAll('td');
             const currency = cells[0]?.textContent?.trim();
-            const buy = parseNumberSafe((cells[3]?.textContent?.trim() ?? '0').replace(/,/g, ''));
-            const sell = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const buy = parseNumberSafe((cells[2]?.textContent?.trim() ?? '0').replace(/,/g, ''));
+            const sell = parseNumberSafe((cells[1]?.textContent?.trim() ?? '0').replace(/,/g, ''));
 
             if (currency) {
                 exchangeRates[currency] = { buy, sell };
