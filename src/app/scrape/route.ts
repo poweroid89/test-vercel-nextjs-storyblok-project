@@ -104,6 +104,7 @@ export async function GET(req: Request) {
             case "uob.co.id": result = await parseUOB(); break;
             case "bi.go.id": result = await parseBI(); break;
             default:
+                await sendAlertEmail(bank ?? "unknown", "Unknown or missing bank parameter", undefined);
                 return NextResponse.json(
                     { error: "Unknown or missing bank parameter" },
                     { status: 400 }
