@@ -17,6 +17,8 @@ import { parseHSBC } from "./parsers/hsbc";
 import { parseDBS } from "./parsers/dbs";
 import { parseUOB } from "./parsers/uob";
 import { parseBI } from "./parsers/bi";
+import { Resend } from "resend";
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface Rate {
     buy: number;
@@ -34,6 +36,47 @@ interface ExchangeRateRow {
     buy: number;
     sell: number;
     timestamp: string;
+}
+
+function validateRates(bank: string, rates: any) {
+    if (!rates || typeof rates !== "object") return "Rates is not an object";
+
+    const entries = Object.entries(rates);
+
+    if (entries.length === 0) return "Rates object is empty";
+
+    for (const [currency, rate] of entries) {
+        if (!currency || typeof currency !== "string")
+            return `Invalid currency key: ${currency}`;
+
+        if (!rate || typeof rate !== "object")
+            return `Invalid rate for ${currency}`;
+
+        if (typeof rate.buy !== "number" || isNaN(rate.buy))
+            return `Invalid BUY value for ${currency}`;
+
+        if (typeof rate.sell !== "number" || isNaN(rate.sell))
+            return `Invalid SELL value for ${currency}`;
+    }
+
+    return null; // OK
+}
+
+async function sendAlertEmail(bank: string, message: string, payload: any) {
+    try {
+        await resend.emails.send({
+            from: process.env.FROM_EMAIL!,
+            to: process.env.ALERT_EMAIL!,
+            subject: `❌ Parser Error: ${bank}`,
+            html: `
+                <h2>Error parsing: ${bank}</h2>
+                <p><b>Message:</b> ${message}</p>
+                <pre>${JSON.stringify(payload, null, 2)}</pre>
+            `,
+        });
+    } catch (e) {
+        console.error("Failed to send alert email:", e);
+    }
 }
 
 export async function GET(req: Request) {
@@ -101,6 +144,12 @@ export async function GET(req: Request) {
                 );
         }
 
+        const errorMessage = validateRates(bank!, result.rates);
+
+        if (errorMessage) {
+            await sendAlertEmail(bank!, errorMessage, result);
+            return NextResponse.json({ error: errorMessage }, { status: 500 });
+        }
         const timestamp = new Date().toISOString();
 
         const rows: ExchangeRateRow[] = Object.entries(result.rates).map(
@@ -118,12 +167,13 @@ export async function GET(req: Request) {
         const { error } = await supabase.from(tableName).insert(rows);
 
         if (error) {
-            console.error("❌ Supabase insert error:", error.message);
+            await sendAlertEmail(bank!, "Supabase insert error", error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
         return NextResponse.json(result);
     } catch (err) {
+        await sendAlertEmail("System Error", err.message, err);
         return NextResponse.json(
             { error: (err as Error).message },
             { status: 500 }
