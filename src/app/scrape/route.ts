@@ -82,6 +82,14 @@ export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const bank = searchParams.get("bank");
+        const secret = searchParams.get("secret");
+
+        if (secret !== process.env.CRON_SECRET) {
+            return NextResponse.json(
+                { error: "Unauthorized: invalid secret" },
+                { status: 401 }
+            );
+        }
 
         let result: BankRatesResult | undefined;
 
