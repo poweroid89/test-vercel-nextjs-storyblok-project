@@ -3,6 +3,7 @@ import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import chromium from '@sparticuz/chromium';
 import { JSDOM } from 'jsdom';
 
+puppeteer.use(StealthPlugin());
 export async function parseBJB() {
     const browser = await puppeteer.launch({
         args: [
